@@ -2,6 +2,7 @@ from typing import List, Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from itertools import zip_longest
 import requests
 
 app = FastAPI(
@@ -526,7 +527,7 @@ def get_bank():
     return data_bank
 
 @app.get("/bank/{id}", response_model=Optional[Bank])
-def get_bank_by_id(id: str):
+def get_bank_by_id(id: int):
     data_bank = get_data_bank_from_web()
     for bank in data_bank:
         if bank['id'] == id:
@@ -534,43 +535,3 @@ def get_bank_by_id(id: str):
     return None
 
 
-
-
-
-def combine_mobil_asuransi():
-    mobil_data = get_mobil()
-    asuransi_data = get_asuransi()
-    combined_data = [
-        {
-            "id_mobil": mobil['id_mobil'],
-            "merek": mobil['merek'],
-            "model": mobil['model'],
-            "tipe_mobil": mobil['tipe_mobil'],
-            "tahun_pembuatan": mobil['tahun_pembuatan'],
-            "warna": mobil['warna'],
-            "nomor_polisi": mobil['nomor_polisi'],
-            "harga_sewa_per_hari": mobil['harga_sewa_per_hari'],
-            "status_ketersediaan": mobil['status_ketersediaan'],
-            "asuransi": asuransi
-        }
-        for mobil in mobil_data
-        for asuransi in asuransi_data
-    ]
-    return combined_data
-
-class MobilAsuransi(BaseModel):
-    id_mobil: str
-    merek: str
-    model: str
-    tipe_mobil: str
-    tahun_pembuatan: int
-    warna: str
-    nomor_polisi: str
-    harga_sewa_per_hari: int
-    status_ketersediaan: str
-    asuransi: Asuransi
-
-@app.get("/mobilAsuransi", response_model=List[MobilAsuransi])
-def get_combined_data():
-    combined_data = combine_mobil_asuransi()
-    return combined_data
